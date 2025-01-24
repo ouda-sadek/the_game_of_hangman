@@ -1,4 +1,5 @@
 import pygame
+import random
 
 # Initialize Pygame 
 pygame.init()
@@ -63,8 +64,14 @@ def draw_hangman(mistakes):
         # right leg
         pygame.draw.line(screen, line_color, (350, 250), (400, 300), 5)  
 
+# Function to read words from the file and select one randomly
+def get_random_word(filename="words.txt"):
+    with open(filename, "r") as file:
+        words = file.read().splitlines()  
+    return random.choice(words).strip()  
+
 # Set word to guess and list of guessed letters
-WORD = "pygame"
+WORD = get_random_word() 
 GUESSED = []
 mistakes = 0
 
@@ -77,7 +84,7 @@ def display_guess():
         else:
             display_text += "_ "
     text = letter_font.render(display_text, True, key_color)
-    screen.blit(text, (400, 460))
+    screen.blit(text, (100, 460))
 
 # Main game loop to keep the window open until user closes it
 while running:

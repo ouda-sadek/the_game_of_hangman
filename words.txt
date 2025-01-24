@@ -1,0 +1,17 @@
+python
+pygame
+programming
+developer
+computer
+keyboard
+hangman
+solution
+adventure
+puzzle
+gameover
+wizard
+random
+screen
+word
+language
+science
