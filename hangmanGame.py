@@ -5,10 +5,10 @@ import os
 # Initialize Pygame
 pygame.init()
 
-# Create a Pygame window and set the size ((window_width, window_height) is a tuple
+# Create a Pygame window and set the size ((window_width, window_height) is a tuple)
 WIDTH, HEIGHT = 1000, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Hangman")
+pygame.display.set_caption("The Game Of Hangman")
 
 # Define color & size
 font = pygame.font.SysFont("arial", 40)
@@ -27,29 +27,32 @@ def get_random_word(filename="words.txt"):
 def add_word_to_file(word, filename="words.txt"):
     with open(filename, "a") as file:
         file.write(f"{word}\n")
+
 # Function to load score history from a file
 def load_scores(filename="scores.txt"):
     if os.path.exists(filename):
         with open(filename, "r") as file:
             scores = file.readlines()
-            #convert scores into an integer
-            return [int(score.strip()) for score in scores]  
+            # convert scores into an integer
+            return [int(score.strip()) for score in scores]
 
 # Function to save a score to the file
 def save_scores(filename="scores.txt", score=0):
     with open(filename, "a") as file:
         # save the victory score(1) and the loss score(0)
-        file.write(f"{score}\n")  
+        file.write(f"{score}\n")
 
 # Function to display the scores
 def display_scores(scores):
     if not scores:
         return "No scores yet"
-    return "\n".join([f"Game {i+1}: {'Won' if score == 1 else 'Lost'}" for i, score in enumerate(scores)])
+    return "\n".join([f"Game {i+1}: {"Won" if score == 1 else "Lost"}" for i, score in enumerate(scores)])
 
 # Set word to guess and list of guessed letters
 victory = 0
 lost = 0
+# Default difficulty
+difficulty = "medium"  
 
 # Function to define and draw the line position with (X, Y)
 def draw_line():
@@ -98,12 +101,22 @@ def draw_board(board, guessed_letters, attempts):
     draw_hangman(6 - attempts)
     pygame.display.flip()
 
+# Function to define attempts based on difficulty
+def get_attempts_for_difficulty(difficulty):
+    if difficulty == "easy":
+        return 8
+    elif difficulty == "medium":
+        return 6
+    # hard
+    else:  
+        return 4
+
 # Main function of the game
 def play_game():
-    global victory, lost
+    global victory, lost, difficulty
 
     WORD = get_random_word()
-    attempts = 6
+    attempts = get_attempts_for_difficulty(difficulty)
     board = ["_" for _ in range(len(WORD))]
     guessed_letters = set()
     game_over = False
@@ -130,20 +143,65 @@ def play_game():
                         if attempts == 0:
                             lost += 1
                             game_over = True
-                            # Save score when player loses (0)
-                            save_scores(score=0)  
+                            save_scores(score=0)  # Save loss
                             break
 
                 if "_" not in board:
                     victory += 1
                     game_over = True
-                    # Save score when player wins (1)
-                    save_scores(score=1)  
+                    save_scores(score=1)  # Save win
                     break
         
         pygame.time.Clock().tick(100)  
 
     return True
+
+# Function to display the difficulty menu
+def display_difficulty_menu():
+    global difficulty
+    running = True
+    while running:
+        screen.fill(BLACK)
+
+        title_text = title_font.render("Select Difficulty", True, WHITE)
+        screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 5))
+
+        easy_button_text = font.render("Easy", True, WHITE)
+        medium_button_text = font.render("Medium", True, WHITE)
+        hard_button_text = font.render("Hard", True, WHITE)
+        back_button_text = font.render("Back to Menu", True, WHITE)
+
+        screen.blit(easy_button_text, (WIDTH // 2 - easy_button_text.get_width() // 2, HEIGHT // 2 - 100))
+        screen.blit(medium_button_text, (WIDTH // 2 - medium_button_text.get_width() // 2, HEIGHT // 2))
+        screen.blit(hard_button_text, (WIDTH // 2 - hard_button_text.get_width() // 2, HEIGHT // 2 + 100))
+        screen.blit(back_button_text, (WIDTH // 2 - back_button_text.get_width() // 2, HEIGHT // 2 + 200))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                return
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if WIDTH // 2 - easy_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + easy_button_text.get_width() // 2:
+                    if HEIGHT // 2 - 100 < mouse_pos[1] < HEIGHT // 2 - 50:
+                        difficulty = "easy"
+                        running = False
+                if WIDTH // 2 - medium_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + medium_button_text.get_width() // 2:
+                    if HEIGHT // 2 < mouse_pos[1] < HEIGHT // 2 + 50:
+                        difficulty = "medium"
+                        running = False
+                if WIDTH // 2 - hard_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + hard_button_text.get_width() // 2:
+                    if HEIGHT // 2 + 100 < mouse_pos[1] < HEIGHT // 2 + 150:
+                        difficulty = "hard"
+                        running = False
+                if WIDTH // 2 - back_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + back_button_text.get_width() // 2:
+                    if HEIGHT // 2 + 200 < mouse_pos[1] < HEIGHT // 2 + 250:
+                        running = False
+                        display_menu()
 
 # Function to display the menu
 def display_menu():
@@ -151,20 +209,20 @@ def display_menu():
     running = True
     while running:
         screen.fill(BLACK)
+        
 
-        title_text = title_font.render("HANGMAN GAME", True, WHITE)
-        screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 4))
+        title_text = title_font.render("THE GAME HANGMAN", True, WHITE)
+        screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 5))
 
         play_button_text = font.render("Play", True, WHITE)
         results_button_text = font.render("Results", True, WHITE)
         add_button_text = font.render("Add Word", True, WHITE)
         exit_button_text = font.render("Exit", True, WHITE)
 
-        screen.blit(play_button_text, (WIDTH // 2 - play_button_text.get_width() // 2, HEIGHT // 2 - 50))
+        screen.blit(play_button_text, (WIDTH // 2 - play_button_text.get_width() // 2, HEIGHT // 2 - 100))
         screen.blit(results_button_text, (WIDTH // 2 - results_button_text.get_width() // 2, HEIGHT // 2))
-        screen.blit(add_button_text, (WIDTH // 2 - add_button_text.get_width() // 2, HEIGHT // 2 + 50))
-
-        screen.blit(exit_button_text, (WIDTH // 2 - exit_button_text.get_width() // 2, HEIGHT // 2 + 100))
+        screen.blit(add_button_text, (WIDTH // 2 - add_button_text.get_width() // 2, HEIGHT // 2 + 100))
+        screen.blit(exit_button_text, (WIDTH // 2 - exit_button_text.get_width() // 2, HEIGHT // 2 + 200))
 
         pygame.display.flip()
 
@@ -177,16 +235,18 @@ def display_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if WIDTH // 2 - play_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + play_button_text.get_width() // 2:
-                    if HEIGHT // 2 - 50 < mouse_pos[1] < HEIGHT // 2 + 10:
+                    if HEIGHT // 2 - 100 < mouse_pos[1] < HEIGHT // 2 - 50:
+                        # Show difficulty menu
+                        display_difficulty_menu()  
                         play_game()
                 if WIDTH // 2 - results_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + results_button_text.get_width() // 2:
                     if HEIGHT // 2 < mouse_pos[1] < HEIGHT // 2 + 50:
                         results_screen()
                 if WIDTH // 2 - add_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + add_button_text.get_width() // 2:
-                    if HEIGHT // 2 + 50 < mouse_pos[1] < HEIGHT // 2 + 100:
+                    if HEIGHT // 2 + 100 < mouse_pos[1] < HEIGHT // 2 + 150:
                         add_word_screen()
                 if WIDTH // 2 - exit_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + exit_button_text.get_width() // 2:
-                    if HEIGHT // 2 + 100 < mouse_pos[1] < HEIGHT // 2 + 150:
+                    if HEIGHT // 2 + 200 < mouse_pos[1] < HEIGHT // 2 + 250:
                         running = False
                         pygame.quit()
 
@@ -200,7 +260,6 @@ def add_word_screen():
 
         input_text = font.render(f"Enter a word: ", True, WHITE)
         screen.blit(input_text, (WIDTH // 2 - input_text.get_width() // 2, HEIGHT // 2 - 100))
-        # {input_word}
         word_text = font.render(input_word, True, WHITE)
         screen.blit(word_text, (WIDTH // 2 - word_text.get_width() // 2, HEIGHT // 2 - 50))
         back_text = font.render("Back to Menu", True, WHITE)
@@ -232,8 +291,6 @@ def add_word_screen():
 
         pygame.time.Clock().tick(60)
 
-
-
 # Function to display the results screen
 def results_screen():
     # Load scores from file
@@ -255,7 +312,7 @@ def results_screen():
 
         if scores:
             for i, score in enumerate(scores):
-                score_text = font.render(f"Game {i+1}: {'Won' if score == 1 else 'Lost'}", True, WHITE)
+                score_text = font.render(f"Game {i+1}: {"Won" if score == 1 else "Lost"}", True, WHITE)
                 screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 1.5 + (i+1) * 40))
 
         pygame.display.flip()
@@ -270,7 +327,7 @@ def results_screen():
                 if WIDTH // 2 - back_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + back_text.get_width() // 2:
                     if HEIGHT // 1.5 < mouse_pos[1] < HEIGHT // 1.5 + 50:
                         running = False
-                       
+
         pygame.time.Clock().tick(60)
 
 # Launch the main menu

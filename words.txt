@@ -20,3 +20,4 @@ bugs
 bugresolved
 newword
 fatiguer
+difficile
