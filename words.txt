@@ -14,3 +14,9 @@ random
 screen
 word
 language
+tester
+cristaline
+bugs
+bugresolved
+newword
+fatiguer

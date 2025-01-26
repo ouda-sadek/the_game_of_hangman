@@ -23,18 +23,23 @@ def get_random_word(filename="words.txt"):
         words = file.read().splitlines()  
     return random.choice(words).strip()  
 
+# Function to add a word to the words.txt file
+def add_word_to_file(word, filename="words.txt"):
+    with open(filename, "a") as file:
+        file.write(f"{word}\n")
 # Function to load score history from a file
 def load_scores(filename="scores.txt"):
     if os.path.exists(filename):
         with open(filename, "r") as file:
             scores = file.readlines()
-            return [int(score.strip()) for score in scores]  # Convertir les scores en entiers
-    return [] 
+            #convert scores into an integer
+            return [int(score.strip()) for score in scores]  
 
 # Function to save a score to the file
 def save_scores(filename="scores.txt", score=0):
     with open(filename, "a") as file:
-        file.write(f"{score}\n")  # Enregistre la victoire (1) ou la défaite (0)
+        # save the victory score(1) and the loss score(0)
+        file.write(f"{score}\n")  
 
 # Function to display the scores
 def display_scores(scores):
@@ -152,11 +157,14 @@ def display_menu():
 
         play_button_text = font.render("Play", True, WHITE)
         results_button_text = font.render("Results", True, WHITE)
+        add_button_text = font.render("Add Word", True, WHITE)
         exit_button_text = font.render("Exit", True, WHITE)
 
         screen.blit(play_button_text, (WIDTH // 2 - play_button_text.get_width() // 2, HEIGHT // 2 - 50))
         screen.blit(results_button_text, (WIDTH // 2 - results_button_text.get_width() // 2, HEIGHT // 2))
-        screen.blit(exit_button_text, (WIDTH // 2 - exit_button_text.get_width() // 2, HEIGHT // 2 + 50))
+        screen.blit(add_button_text, (WIDTH // 2 - add_button_text.get_width() // 2, HEIGHT // 2 + 50))
+
+        screen.blit(exit_button_text, (WIDTH // 2 - exit_button_text.get_width() // 2, HEIGHT // 2 + 100))
 
         pygame.display.flip()
 
@@ -174,18 +182,66 @@ def display_menu():
                 if WIDTH // 2 - results_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + results_button_text.get_width() // 2:
                     if HEIGHT // 2 < mouse_pos[1] < HEIGHT // 2 + 50:
                         results_screen()
-
-                if WIDTH // 2 - exit_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + exit_button_text.get_width() // 2:
+                if WIDTH // 2 - add_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + add_button_text.get_width() // 2:
                     if HEIGHT // 2 + 50 < mouse_pos[1] < HEIGHT // 2 + 100:
+                        add_word_screen()
+                if WIDTH // 2 - exit_button_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + exit_button_text.get_width() // 2:
+                    if HEIGHT // 2 + 100 < mouse_pos[1] < HEIGHT // 2 + 150:
                         running = False
                         pygame.quit()
+
+# Function to allow user to add a word to the words.txt file
+def add_word_screen():
+    input_word = ""
+    typing = True
+
+    while typing:
+        screen.fill(BLACK)
+
+        input_text = font.render(f"Enter a word: ", True, WHITE)
+        screen.blit(input_text, (WIDTH // 2 - input_text.get_width() // 2, HEIGHT // 2 - 100))
+        # {input_word}
+        word_text = font.render(input_word, True, WHITE)
+        screen.blit(word_text, (WIDTH // 2 - word_text.get_width() // 2, HEIGHT // 2 - 50))
+        back_text = font.render("Back to Menu", True, WHITE)
+        screen.blit(back_text, (WIDTH // 2 - back_text.get_width() // 2, HEIGHT // 2 + 100))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  
+                    # Press Enter to add the word
+                    if input_word:
+                        add_word_to_file(input_word)
+                    typing = False
+                elif event.key == pygame.K_BACKSPACE:
+                    input_word = input_word[:-1]
+                else:
+                    input_word += pygame.key.name(event.key)
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if WIDTH // 2 - back_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + back_text.get_width() // 2:
+                    if HEIGHT // 2 + 100 < mouse_pos[1] < HEIGHT // 2 + 150:
+                        typing = False
+
+        pygame.time.Clock().tick(60)
+
+
 
 # Function to display the results screen
 def results_screen():
     # Load scores from file
     scores = load_scores()  
     running = True
+    
     while running:
+        
         screen.fill(BLACK)
 
         results_text = font.render(f"You won: {victory} times", True, WHITE)
@@ -193,8 +249,6 @@ def results_screen():
         
         lost_text = font.render(f"You lost: {lost} times", True, WHITE)
         screen.blit(lost_text, (WIDTH // 2 - lost_text.get_width() // 2, HEIGHT // 2))
-        
-        
         
         back_text = font.render("Back to Menu", True, WHITE)
         screen.blit(back_text, (WIDTH // 2 - back_text.get_width() // 2, HEIGHT // 1.5))
@@ -216,8 +270,7 @@ def results_screen():
                 if WIDTH // 2 - back_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + back_text.get_width() // 2:
                     if HEIGHT // 1.5 < mouse_pos[1] < HEIGHT // 1.5 + 50:
                         running = False
-
-                
+                       
         pygame.time.Clock().tick(60)
 
 # Launch the main menu
