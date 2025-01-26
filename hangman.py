@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 # Initialize Pygame 
 pygame.init()
@@ -23,6 +24,8 @@ letter_font = pygame.font.SysFont("arial", 60)
 key_color = (WHITE)
 game_font = pygame.font.SysFont("arial", 50)
 line_color = (WHITE)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
 # Function to define and draw the line position with (X, Y)
 def draw_line():
@@ -88,6 +91,7 @@ def display_guess():
 
 # Main game loop to keep the window open until user closes it
 while running:
+    
     # Event management
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -120,9 +124,16 @@ while running:
     if won:
         game_over = True
         game_over_message = "You won !!"
+        
+        message = game_font.render("You're a Hangman master!", True, GREEN)
+        screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 1.2))
+            
+        screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 1.2))
     elif mistakes >= 6:
         game_over = True
         game_over_message = "You lost !!"
+        message = game_font.render("Better luck next time!", True, RED)
+        screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 1.2))
     
     # Show game end message
     if game_over:
