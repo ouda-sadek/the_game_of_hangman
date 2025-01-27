@@ -1,0 +1,6 @@
+nass,1,easy
+dina,0,medium
+rayanne,1,easy
+dina,1,hard
+1
+toto,1,easy
