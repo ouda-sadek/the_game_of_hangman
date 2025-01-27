@@ -15,9 +15,10 @@ screen
 word
 language
 tester
-cristaline
 bugs
-bugresolved
-newword
-fatiguer
-difficile
+php
+java
+javascript
+google
+openai
+webvgt
