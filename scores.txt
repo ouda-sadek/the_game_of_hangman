@@ -1,1 +1,2 @@
-vdfer,0,easy
+rat,1,normal
+nass,0,easy

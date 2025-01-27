@@ -10,7 +10,6 @@ WIDTH, HEIGHT = 1000, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("The Game Of Hangman")
 
-# Load background image
 background_image = pygame.image.load(os.path.join("background.jpg"))
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 background_rect = background_image.get_rect()
@@ -21,7 +20,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 line_color = (WHITE)
 
-# chosen word                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   # Function to read words from the file and select one randomly
+# Function to read words from the file and select one randomly
 def get_random_word(filename="words.txt"):
     with open(filename, "r") as file:
         words = file.read().splitlines()  
@@ -37,11 +36,14 @@ def load_scores(filename="scores.txt"):
     if os.path.exists(filename):
         with open(filename, "r") as file:
             scores = file.readlines()
+            # Convertir chaque ligne en une liste : [nom, score (1 ou 0), difficulté]
             return [line.strip().split(",") for line in scores]
     return []
 # Function to save a score to the file
 def save_scores(player_name, victory, lost, difficulty, filename="scores.txt"):
+    # Déterminer le score (1 pour victoire, 0 pour défaite)
     score = 1 if victory > lost else 0
+    # Sauvegarder dans le fichier avec format "Nom_du_joueur,victoire/perte,difficulté"
     with open(filename, "a") as file:
         file.write(f"{player_name},{score},{difficulty}\n")
 
@@ -90,7 +92,6 @@ def draw_hangman(mistakes):
 
 # Function to draw the board
 def draw_board(board, guessed_letters, attempts):
-    
     screen.fill(BLACK)
     screen.blit(background_image, (0, 0))
     draw_line()
@@ -123,17 +124,20 @@ def get_player_name():
     input_name = ""
     typing = True
 
-    #enter the name of the player
+    # Afficher l'écran de saisie du nom du joueur
     while typing:
         screen.fill(BLACK)
         screen.blit(background_image, (0, 0))
 
+        # Texte de la zone de saisie
         input_text = font.render("Enter your name:", True, WHITE)
         screen.blit(input_text, (WIDTH // 2 - input_text.get_width() // 2, HEIGHT // 2 - 100))
         
+        # Affichage du nom saisi
         name_text = font.render(input_name, True, WHITE)
         screen.blit(name_text, (WIDTH // 2 - name_text.get_width() // 2, HEIGHT // 2 - 50))
         
+        # Texte pour revenir au menu
         back_text = font.render("Back to Menu", True, WHITE)
         screen.blit(back_text, (WIDTH // 2 - back_text.get_width() // 2, HEIGHT // 2 + 100))
 
@@ -146,28 +150,28 @@ def get_player_name():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:  
-                    
+                    # Si l'utilisateur appuie sur "Enter", valider le nom
                     if input_name:
-                        typing = False  
+                        typing = False  # Sortir de la boucle si un nom est saisi
                 elif event.key == pygame.K_BACKSPACE:
-                    input_name = input_name[:-1]  
-                    input_name += pygame.key.name(event.key)  
+                    input_name = input_name[:-1]  # Supprimer le dernier caractère
+                else:
+                    input_name += pygame.key.name(event.key)  # Ajouter le caractère saisi
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if WIDTH // 2 - back_text.get_width() // 2 < mouse_pos[0] < WIDTH // 2 + back_text.get_width() // 2:
                     if HEIGHT // 2 + 100 < mouse_pos[1] < HEIGHT // 2 + 150:
-                        typing = False  
+                        typing = False  # Sortir de la boucle si "Back to Menu" est cliqué
 
-        pygame.time.Clock().tick(60)  
-    return input_name  
+        pygame.time.Clock().tick(60)  # Limiter la fréquence de rafraîchissement
+
+    return input_name  # Retourner le nom du joueur
 
 # Main function of the game
 def play_game():
     global victory, lost, difficulty, player1_name
-    
 
-    # Get player names and difficulty
     player1_name = get_player_name()
     if player1_name is None:
         return False 
@@ -207,20 +211,19 @@ def play_game():
                             break
 
                 if "_" not in board:
-                    
                     victory += 1
                     game_over = True
                      # Save win
                     save_scores(player1_name, victory, lost, difficulty)
-                    
-            pygame.time.Clock().tick(60)  
+
+        pygame.time.Clock().tick(60)  # Control frame rate
 
     # After the game ends, display the result
     result_text = "You Won!" if victory > lost else "You Lost!"
     result_font = pygame.font.SysFont("arial", 50)
-    result_message = result_font.render(result_text, True, "Green" if victory else "Red")
+    result_message = result_font.render(result_text, True, "Green" if victory  else "Red")
     
-    chosen_word = font.render("Chosen Word: " + WORD, True, WHITE)
+    chosen_word =font.render("chosen word: " + WORD, True, WHITE)
     # Clear the screen and display the result message
     screen.fill(BLACK)
     screen.blit(background_image, (0, 0))
@@ -244,12 +247,12 @@ def play_game():
                 mouse_pos = pygame.mouse.get_pos()
                 # Check if the click is inside the "Back to Menu" button
                 if back_rect.collidepoint(mouse_pos):
-                    waiting_for_input = False  
+                    waiting_for_input = False  # Exit loop and go back to menu
             if event.type == pygame.KEYDOWN:
-                waiting_for_input = False 
+                waiting_for_input = False  # Exit loop and go back to menu
 
     return True
-    
+
 # Function to display the difficulty menu
 def display_difficulty_menu():
     global difficulty
@@ -324,6 +327,7 @@ def display_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                
                 return
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -395,18 +399,20 @@ def draw_score_table():
         [player2_name, lost, difficulty]
     ]
 
-    # board start
+    # Coordonnées de départ pour le tableau
     x_start = 100
     y_start = 100
     row_height = 50
-    col_widths = [250, 150, 200]  
-    header_height = 60  
+    col_widths = [250, 150, 200]  # Largeurs des colonnes
+    header_height = 60  # Hauteur de l'en-tête
 
+    # Dessiner l'en-tête du tableau
     pygame.draw.rect(screen, BLACK, (x_start, y_start, sum(col_widths), header_height))
     for idx, header_text in enumerate(header):
         draw_text(header_text, font, WHITE, screen, 
-                  (x_start + sum(col_widths[:idx]) + 10, y_start + 10))  
+                  (x_start + sum(col_widths[:idx]) + 10, y_start + 10))  # Décalage de 10px pour les bordures
 
+    # Dessiner les lignes du tableau
     y_offset = y_start + header_height
     for row in scores:
         for idx, cell in enumerate(row):
@@ -429,7 +435,9 @@ def results_screen():
     # Load scores from file
     scores = load_scores()
     running = True
+    
     while running:
+        
         screen.fill(BLACK)
         screen.blit(background_image, (0, 0))
         draw_score_table()
@@ -454,4 +462,4 @@ def results_screen():
 
 # Launch the main menu
 display_menu()
-pygame.quit()
+pygame.quit()                                                                                                                                                               
